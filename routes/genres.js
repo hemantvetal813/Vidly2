@@ -1,4 +1,6 @@
 const express = require("express");
+const config = require("config");
+
 const { validateGenre } = require("../models/genre");
 
 const router = express.Router();
@@ -10,6 +12,7 @@ let genres = [
 ];
 
 router.get("/", (req, res) => {
+  console.log(config.get("vidly_password"));
   res.send(genres);
 });
 
