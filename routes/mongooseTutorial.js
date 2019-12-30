@@ -13,11 +13,18 @@ mongoose
   });
 
 const courseSchema = new mongoose.Schema({
-  name: String,
+  name: { type: String, required: true },
   Author: String,
   tags: [String],
   date: { type: Date, default: Date.now },
-  isPublished: { type: Boolean, default: false }
+  isPublished: { type: Boolean, default: false },
+  comments: [commentSchema]
+});
+
+const commentSchema = new mongoose.Schema({
+  createdDate: { type: Date, default: Date.now },
+  modifiedDate: { type: Date, default: Date.now },
+  comment: { type: String, required: true }
 });
 
 const Course = mongoose.model("Course", courseSchema);
