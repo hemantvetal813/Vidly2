@@ -3,6 +3,17 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const mongoose = require("mongoose");
+
+mongoose
+  .connect("mongodb://localhost/vidly2", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => "Connected to MOngoDB")
+  .catch(err => {
+    "could not connect to mongodb", err;
+  });
 
 var app = express();
 

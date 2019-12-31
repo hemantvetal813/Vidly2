@@ -1,61 +1,70 @@
 const express = require("express");
 const config = require("config");
 
-const { validateGenre } = require("../models/genre");
+const { validateGenre, Genre } = require("../models/genre");
 
 const router = express.Router();
 
-let genres = [
-  { name: "Action", _id: 1 },
-  { name: "Comedy", _id: 2 },
-  { name: "Thriller", _id: 3 }
-];
-
-router.get("/", (req, res) => {
-  console.log(config.get("vidly_password"));
+router.get("/", async (req, res) => {
+  const genres = await Genre.find().sort();
+  // console.log(config.get("vidly_password"));
   res.send(genres);
 });
 
-router.get("/:_id", (req, res) => {
-  const genre = genres.filter(item => item._id == parseInt(req.params._id));
-  if (genre.length == 0) return res.send("genre not found");
-  res.send(genre);
+router.get("/:_id", async (req, res) => {
+  // const genre = genres.filter(item => item._id == parseInt(req.params._id));
+  // if (genre.length == 0) return res.send("genre not found");
+  try {
+    const genre = await Genre.find({ _id: req.params._id });
+    res.send(genre);
+  } catch (error) {
+    res.send(error.message);
+  }
 });
 
-router.post("/", function(req, res) {
+router.post("/", async (req, res) => {
   const { error } = validateGenre(req);
   if (error) return res.send(error.details[0].message);
 
-  const genre = { name: req.body.name, _id: genres.length + 1 };
-  genres.push(genre);
-  res.send(genre);
+  try {
+    const genre = new Genre({ name: req.body.name });
+    result = await genre.save();
+    res.send(result);
+  } catch (error) {
+    res.send(error.message);
+  }
 });
 
-router.put("/:_id", (req, res) => {
+router.put("/:_id", async (req, res) => {
   const { error } = validateGenre(req);
   if (error) return res.send(error.details[0].message);
 
-  const genreArray = genres.filter(
-    item => item._id !== parseInt(req.params._id)
-  );
-  if (genreArray.length == genres.length)
-    return res.send("genre not found, cant update");
-
-  const genre = { name: req.body.name, _id: req.params._id };
-  genres = genreArray;
-  genres.push(genre);
-  res.send(genre);
+  // const genreArray = genres.filter(
+  //   item => item._id !== parseInt(req.params._id)
+  // );
+  // if (genreArray.length == genres.length)
+  //   return res.send("genre not found, cant update");
+  try {
+    const genre = await Genre.findByIdAndUpdate(
+      req.params._id,
+      {
+        name: req.body.name
+      },
+      { new: true }
+    );
+    res.send(genre);
+  } catch (error) {
+    res.send(error.message);
+  }
 });
 
-router.delete("/:_id", (req, res) => {
-  const genre = genres.filter(item => item._id == parseInt(req.params._id));
-  if (genre.length == 0) return res.send("genre not found");
-
-  const genreArray = genres.filter(
-    item => item._id !== parseInt(req.params._id)
-  );
-  genres = genreArray;
-  res.send(genre);
+router.delete("/:_id", async (req, res) => {
+  try {
+    const genre = await Genre.findByIdAndDelete(req.params._id);
+    res.send(genre);
+  } catch (error) {
+    res.send(error.message);
+  }
 });
 
 module.exports = router;

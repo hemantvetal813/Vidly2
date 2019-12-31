@@ -1,16 +1,6 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const router = express.Router();
-
-mongoose
-  .connect("mongodb://localhost/playground", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  .then(() => "Connected to MOngoDB")
-  .catch(err => {
-    "could not connect to mongodb", err;
-  });
+const mongoose = require("mongoose");
 
 const commentSchema = new mongoose.Schema({
   createdDate: { type: Date, default: Date.now },
@@ -33,14 +23,21 @@ const courseSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   isPublished: { type: Boolean, default: false },
   comments: [commentSchema],
-  category: { type: [String], enum: ["coding", "mosh", "mom", "dad"] }, //enum:this values are only allowed
+  category: {
+    type: [String],
+    enum: ["coding", "mosh", "mom", "dad"],
+    lowercase: true,
+    trim: true
+  }, //enum:this values are only allowed
   price: {
     type: Number,
     min: 10,
     max: 200,
     required: function() {
       return this.isPublished; //if its published, price is required
-    }
+    },
+    set: v => Math.round(v), //rounds the value if inserted in decimal
+    get: v => Math.round(v) //rounds the value if fetched
   }
 });
 
@@ -66,7 +63,7 @@ router.get("/", async (req, res) => {
     const course = await Course.find({});
     res.send(course);
   } catch (err) {
-    res.send(err.message);
+    for (field in err.errors) res.send(err.errors[field]);
   }
 });
 
