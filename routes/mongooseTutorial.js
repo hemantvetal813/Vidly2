@@ -12,60 +12,81 @@ mongoose
     "could not connect to mongodb", err;
   });
 
-const courseSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  Author: String,
-  tags: [String],
-  date: { type: Date, default: Date.now },
-  isPublished: { type: Boolean, default: false },
-  comments: [commentSchema]
-});
-
 const commentSchema = new mongoose.Schema({
   createdDate: { type: Date, default: Date.now },
   modifiedDate: { type: Date, default: Date.now },
   comment: { type: String, required: true }
 });
 
-const Course = mongoose.model("Course", courseSchema);
+const courseSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  Author: String,
+  tags: {
+    type: Array,
+    validate: {
+      validator: function(v) {
+        return v && v.length > 0; //array validation: custom function validator
+      },
+      message: "atleast one tag must be present"
+    }
+  },
+  date: { type: Date, default: Date.now },
+  isPublished: { type: Boolean, default: false },
+  comments: [commentSchema],
+  category: { type: [String], enum: ["coding", "mosh", "mom", "dad"] }, //enum:this values are only allowed
+  price: {
+    type: Number,
+    min: 10,
+    max: 200,
+    required: function() {
+      return this.isPublished; //if its published, price is required
+    }
+  }
+});
 
-async function createCourse() {
-  const course = new Course({
-    name: "mongod",
-    Author: "Dinesh vetal",
-    tags: ["mom", "dad"],
-    isPublished: true
-  });
-  const result = await course.save();
-  console.log(result);
-}
-// createCourse();
+const Course = mongoose.model("Course", courseSchema);
 
 router.post("/", async (req, res) => {
   const course = new Course({
     name: req.body.name,
     Author: req.body.Author,
-    tags: ["mom", "dad"], //not set yet
-    isPublished: req.body.isPublished
+    tags: req.body.tags,
+    isPublished: req.body.isPublished,
+    price: req.body.price
   });
-  const result = await course.save();
-  res.send(result);
+  try {
+    const result = await course.save();
+    res.send(result);
+  } catch (err) {
+    res.send(err.message);
+  }
+});
+router.get("/", async (req, res) => {
+  try {
+    const course = await Course.find({});
+    res.send(course);
+  } catch (err) {
+    res.send(err.message);
+  }
 });
 
-router.get("/", async (req, res) => {
-  const course = await Course.find({
-    Author: "Dinesh vetal",
-    isPublished: true
-    // tags:{$in:["mom","dad"]}//"and" condtion both tags should be present
-  })
-    // .or([{ tags: "mom" }, { tags: "dad" }]) //pass array//"or" condition any one tag be present
-    .limit(10)
-    .sort({ name: 1 }) //-1 for desc, 1 for asc
-    // .sort("name") //-ve string means -1
-    .select({ Author: 0, date: 0 }); //1 for showing, 0 for not showing or
-  // .select("-Author -date");//-ve string means 0
-  // .count()//for no of documents, but remove select
-  res.send(course);
+router.get("/:_id", async (req, res) => {
+  try {
+    const course = await Course.find({
+      _id: req.params._id
+      // tags:{$in:["mom","dad"]}//"and" condtion both tags should be present
+    })
+      // .or([{ tags: "mom" }, { tags: "dad" }]) //pass array//"or" condition any one tag be present
+      .limit(10)
+      .sort({ name: 1 }) //-1 for desc, 1 for asc
+      // .sort("name") //-ve string means -1
+      .select({ Author: 0, date: 0 }); //1 for showing, 0 for not showing or
+    // .select("-Author -date");//-ve string means 0
+    // .count()//for no of documents, but remove select
+    res.send(course);
+  } catch (err) {
+    res.send(err.message);
+  }
 });
 
 //regex
