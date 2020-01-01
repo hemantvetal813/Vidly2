@@ -1,13 +1,10 @@
 const express = require("express");
-const config = require("config");
-
 const { validateGenre, Genre } = require("../models/genre");
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
   const genres = await Genre.find().sort();
-  // console.log(config.get("vidly_password"));
   res.send(genres);
 });
 

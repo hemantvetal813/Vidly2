@@ -4,11 +4,13 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const mongoose = require("mongoose");
+const config = require("config");
 
 mongoose
   .connect("mongodb://localhost/vidly2", {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: true
   })
   .then(() => "Connected to MOngoDB")
   .catch(err => {
@@ -16,6 +18,7 @@ mongoose
   });
 
 var app = express();
+// console.log(config.get("vidly_password"));
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
