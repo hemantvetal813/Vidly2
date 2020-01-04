@@ -12,11 +12,7 @@ router.post("/", async (req, res) => {
   if (error) return res.send(error.details[0].message);
 
   try {
-    const customer = new Customer({
-      name: req.body.name,
-      phone: req.body.phone,
-      isGold: req.body.isGold
-    });
+    const customer = new Customer(req.body);
     result = await customer.save();
     res.send(result);
   } catch (error) {

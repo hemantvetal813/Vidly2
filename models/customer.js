@@ -29,7 +29,8 @@ function validateCustomer(req) {
     phone: Joi.number()
       .required()
       .min(1000000000)
-      .max(9999999999)
+      .max(9999999999),
+    isGold: Joi.boolean()
   };
   return Joi.validate(req.body, schema);
 }

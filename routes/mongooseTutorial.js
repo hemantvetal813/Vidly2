@@ -20,7 +20,8 @@ const courseSchema = new mongoose.Schema({
       message: "atleast one tag must be present"
     }
   },
-  date: { type: Date, default: Date.now },
+  createdDate: { type: Date, default: Date.now },
+  modifiedDate: { type: Date, default: Date.now },
   isPublished: { type: Boolean, default: false },
   comments: [commentSchema],
   category: {
@@ -44,13 +45,7 @@ const courseSchema = new mongoose.Schema({
 const Course = mongoose.model("Course", courseSchema);
 
 router.post("/", async (req, res) => {
-  const course = new Course({
-    name: req.body.name,
-    Author: req.body.Author,
-    tags: req.body.tags,
-    isPublished: req.body.isPublished,
-    price: req.body.price
-  });
+  const course = new Course(req.body);
   try {
     const result = await course.save();
     res.send(result);
@@ -60,7 +55,7 @@ router.post("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    const course = await Course.find({});
+    const course = await Course.find().sort();
     res.send(course);
   } catch (err) {
     for (field in err.errors) res.send(err.errors[field]);
@@ -89,7 +84,7 @@ router.get("/:_id", async (req, res) => {
 //regex
 // Course.find({Author: /^Dinesh/})//startsWith sensitive case
 // Course.find({Author: /Dinesh$/i})//endsWith inSensitive case
-// Course.find({Author: /.*Dinesh.*/i})//contains inSensitive case
+// Course.find({Author: /.*Dinesh.*/i})//dinesh anywhere contains inSensitive case
 
 //query operators: and, or
 //   Course.find()
@@ -107,16 +102,82 @@ router.get("/:_id", async (req, res) => {
 // .skip((pageNumber-1)*pageSize)
 // .limit(pageSize)
 
-router.put("/:_id", async (req, res) => {
+router.put("/:_id", async ({ body, params }, res) => {
+  const course = await Course.findById(params._id);
+  if (!course) return res.send("course not found");
+  try {
+    Object.keys(body).forEach(item => {
+      if (typeof body[item] !== "object") course[item] = body[item]; //to avoid updating comments
+      course.modifiedDate = Date.now();
+    });
+    // course.set({
+    //   name: req.body.name,
+    //   Author: req.body.Author,
+    //   // price: body.price,
+    //   modifiedDate: Date.now()
+    // });
+    const result = await course.save();
+    res.send(result);
+  } catch (err) {
+    for (field in err.errors) res.send(err.errors[field]);
+  }
+});
+
+router.post("/:_id/comments", async (req, res) => {
   const course = await Course.findById(req.params._id);
   if (!course) return res.send("course not found");
+  try {
+    course.comments.push(req.body);
+    course.modifiedDate = Date.now();
 
-  course.set({
-    name: req.body.name,
-    Author: req.body.Author
-  });
-  const result = await course.save();
-  res.send(result);
+    const result = await course.save();
+    res.send(result);
+  } catch (error) {
+    for (field in error.errors) res.send(error.errors[field]);
+  }
 });
+
+//this is also a way to write one single route and chain all methods get,put,post,delete
+router
+  .route("/:_id/comments/:commentID")
+  .get(async (req, res) => {
+    const course = await Course.findById(req.params._id);
+    if (!course) return res.send("course not found");
+    try {
+      const comment = await course.comments.id(req.params.commentID);
+      if (!comment) res.send("comment does not exist");
+      res.send(comment);
+    } catch (error) {
+      for (field in error.errors) res.send(error.errors[field]);
+    }
+  })
+  .put(async (req, res) => {
+    try {
+      const course = await Course.findById(req.params._id);
+      if (!course) return res.send("course not found");
+      const comment = await course.comments.id(req.params.commentID);
+      if (!comment) return res.send("comment does not exist");
+      comment.comment = req.body.comment;
+      comment.modifiedDate = course.modifiedDate = Date.now();
+      const result = await course.save();
+      res.send(result);
+    } catch (error) {
+      for (field in error.errors) res.send(error.errors[field]);
+    }
+  })
+  .delete(async (req, res) => {
+    try {
+      const course = await Course.findById(req.params._id);
+      if (!course) return res.send("course not found");
+      const comment = await course.comments.id(req.params.commentID);
+      if (!comment) return res.send("comment does not exist");
+      course.comments.id(req.params.commentID).remove();
+      course.modifiedDate = Date.now();
+      const result = await course.save();
+      res.send(result);
+    } catch (error) {
+      for (field in error.errors) res.send(error.errors[field]);
+    }
+  });
 
 module.exports = router;
