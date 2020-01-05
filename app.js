@@ -1,4 +1,6 @@
 const expressSession = require("express-session");
+
+const BasicAuth = require("./Middleware/Authentication/BasicAuth");
 const cookie = require("cookie-parser");
 var createError = require("http-errors");
 var express = require("express");
@@ -30,6 +32,9 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// app.use(BasicAuth);//uncomment to use basic Auth include authorization header while passing req
+
 app.use(express.static(path.join(__dirname, "public")));
 
 //routes

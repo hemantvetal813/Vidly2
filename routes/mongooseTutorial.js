@@ -55,7 +55,7 @@ router.post("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    const course = await Course.find().sort();
+    const course = await Course.find().sort({ name: 1 });
     res.send(course);
   } catch (err) {
     for (field in err.errors) res.send(err.errors[field]);
