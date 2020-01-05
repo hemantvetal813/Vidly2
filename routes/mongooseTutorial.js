@@ -123,19 +123,31 @@ router.put("/:_id", async ({ body, params }, res) => {
   }
 });
 
-router.post("/:_id/comments", async (req, res) => {
-  const course = await Course.findById(req.params._id);
-  if (!course) return res.send("course not found");
-  try {
-    course.comments.push(req.body);
-    course.modifiedDate = Date.now();
+router
+  .route("/:_id/comments")
+  .post(async (req, res) => {
+    const course = await Course.findById(req.params._id);
+    if (!course) return res.send("course not found");
+    try {
+      course.comments.push(req.body);
+      course.modifiedDate = Date.now();
 
-    const result = await course.save();
-    res.send(result);
-  } catch (error) {
-    for (field in error.errors) res.send(error.errors[field]);
-  }
-});
+      const result = await course.save();
+      res.send(result);
+    } catch (error) {
+      for (field in error.errors) res.send(error.errors[field]);
+    }
+  })
+  .get(async (req, res) => {
+    const course = await Course.findById(req.params._id);
+    if (!course) return res.send("course not found");
+    try {
+      const comments = await course.comments;
+      res.send(comments);
+    } catch (error) {
+      res.send(error);
+    }
+  });
 
 //this is also a way to write one single route and chain all methods get,put,post,delete
 router

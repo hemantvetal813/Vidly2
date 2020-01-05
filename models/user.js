@@ -1,8 +1,8 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
-const Customer = mongoose.model(
-  "Customer",
+const User = mongoose.model(
+  "User",
   new mongoose.Schema({
     name: {
       type: String,
@@ -10,39 +10,27 @@ const Customer = mongoose.model(
       minlength: 5,
       maxlength: 500
     },
-    phone: {
-      type: Number,
-      // required: true,
-      min: 1000000000,
-      max: 9999999999
-    },
     password: {
       type: String,
       min: 8,
       max: 20
-    },
-    isGold: { type: Boolean, default: false }
+    }
   })
 );
 
-function validateCustomer(req) {
+function validateUser(req) {
   const schema = {
     name: Joi.string()
       .required()
       .min(5)
       .max(500),
-    phone: Joi.number()
-      .required()
-      .min(1000000000)
-      .max(9999999999),
     password: Joi.string()
       .required()
       .min(8)
-      .max(20),
-    isGold: Joi.boolean()
+      .max(20)
   };
   return Joi.validate(req.body, schema);
 }
 
-module.exports.validateCustomer = validateCustomer;
-module.exports.Customer = Customer;
+module.exports.validateUser = validateUser;
+module.exports.User = User;
