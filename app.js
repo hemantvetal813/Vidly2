@@ -7,6 +7,9 @@ var logger = require("morgan");
 const mongoose = require("mongoose");
 const config = require("config");
 
+//for referencing documents check customers route file
+//for embedding documents check mongooseTutorial file
+// for basic auth check users file
 mongoose
   .connect("mongodb://localhost/vidly2", {
     useNewUrlParser: true,

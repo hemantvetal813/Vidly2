@@ -21,7 +21,8 @@ const Customer = mongoose.model(
       min: 8,
       max: 20
     },
-    isGold: { type: Boolean, default: false }
+    isGold: { type: Boolean, default: false },
+    author: { type: mongoose.Schema.Types.ObjectId, ref: "Author" }
   })
 );
 
@@ -32,14 +33,14 @@ function validateCustomer(req) {
       .min(5)
       .max(500),
     phone: Joi.number()
-      .required()
       .min(1000000000)
       .max(9999999999),
     password: Joi.string()
       .required()
       .min(8)
       .max(20),
-    isGold: Joi.boolean()
+    isGold: Joi.boolean(),
+    author: Joi.string()
   };
   return Joi.validate(req.body, schema);
 }
