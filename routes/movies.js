@@ -27,10 +27,14 @@ router
       const movie = await Movie.find({ title: req.body.title });
       if (movie.length !== 0) return res.send("Movie exist in database");
       // const genre = await Genre.find({ _id: req.body.genreId });
-      const genre = await Genre.findById(req.body.genreId);
+      // if (genre.length !== 0) return res.send("Invalid Genre");
+      let GenreArray = await Genre.find();
+      const genre = GenreArray.find(item => {
+        item.id == parseInt(req.body.genreId);
+      });
+      // const genre = await Genre.findById (req.body.genreId);
       if (!genre) return res.send("Invalid Genre");
-
-      const newMovie = new Movie({
+      let newMovie = new Movie({
         title: req.body.title,
         genre: { _id: genre._id, name: genre.name },
         dailyRentalRate: req.body.dailyRentalRate,
