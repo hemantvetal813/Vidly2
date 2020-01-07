@@ -16,7 +16,7 @@ mongoose
     useUnifiedTopology: true,
     useFindAndModify: true
   })
-  .then(() => "Connected to MOngoDB")
+  .then(() => console.log("Connected to MOngoDB"))
   .catch(err => {
     "could not connect to mongodb", err;
   });
@@ -25,7 +25,7 @@ var app = express();
 // console.log(config.get("vidly_password"));
 
 //security  module
-// app.use(helmet());
+app.use(helmet());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

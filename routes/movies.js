@@ -26,9 +26,10 @@ router
       if (error) return res.send(error.details[0].message);
       const movie = await Movie.find({ title: req.body.title });
       if (movie.length !== 0) return res.send("Movie exist in database");
-      const genre = await Genre.find({ _id: req.body.genreId });
+      // const genre = await Genre.find({ _id: req.body.genreId });
+      const genre = await Genre.findById(req.body.genreId);
       if (!genre) return res.send("Invalid Genre");
-      //issue not catching invalid genre  here , also in genreschema we do not define _id in schema ,do checkout
+
       const newMovie = new Movie({
         title: req.body.title,
         genre: { _id: genre._id, name: genre.name },
