@@ -26,13 +26,22 @@ router
       if (error) return res.send(error.details[0].message);
       const movie = await Movie.find({ title: req.body.title });
       if (movie.length !== 0) return res.send("Movie exist in database");
-      // const genre = await Genre.find({ _id: req.body.genreId });
-      // if (genre.length !== 0) return res.send("Invalid Genre");
-      let GenreArray = await Genre.find();
-      const genre = GenreArray.find(item => {
-        item.id == parseInt(req.body.genreId);
-      });
-      // const genre = await Genre.findById (req.body.genreId);
+
+      //cast object id issue: whenever we refer to other document with invalid _id i.e. inavlid genre id in movie document it passes this error
+      //my solution for cast object id issue
+
+      // let GenreArray = await Genre.find();//this thing converts _id key in mongoose to id ,i.e. why i've checked for item.id
+      // const genre = GenreArray.find(item => {
+      //   item.id == parseInt(req.body.genreId);
+      // });
+
+      //mosh solution 1
+      // if(!mongoose.Types.ObjectId.isValid(req.body.genreId)) return res.send("Invalid Genre");
+
+      //mosh solution 2
+      // use npm joi-objectid package in movie.js, change Joi.string().required() to Joi.objectid().required()
+
+      const genre = await Genre.findById(req.body.genreId);
       if (!genre) return res.send("Invalid Genre");
       let newMovie = new Movie({
         title: req.body.title,

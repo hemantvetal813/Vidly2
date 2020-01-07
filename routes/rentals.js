@@ -1,9 +1,12 @@
 const express = require("express");
+const Fawn = require("fawn");
+const mongoose = require("mongoose");
 const { validateRental, Rental } = require("../models/rental");
 const { Customer } = require("../models/customer");
 const { Movie } = require("../models/movie");
 
 const router = express.Router();
+Fawn.init(mongoose);
 
 router
   .route("/")
@@ -33,9 +36,20 @@ router
           dailyRentalRate: movie.dailyRentalRate
         }
       });
-      rental = await rental.save();
-      movie.numberInStock--;
-      movie.save();
+      //   genral method
+      //   rental = await rental.save();
+      //   movie.numberInStock--;
+      //   movie.save();
+      new Fawn.Task()
+        .save("rentals", rental)
+        .update(
+          "movies",
+          { _id: movie._id },
+          {
+            $inc: { numberInStock: -1 }
+          }
+        )
+        .run();
       res.send(rental);
     } catch (error) {
       res.send(error.message);
