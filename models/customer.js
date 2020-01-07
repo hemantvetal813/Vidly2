@@ -36,7 +36,6 @@ function validateCustomer(req) {
       .min(1000000000)
       .max(9999999999),
     password: Joi.string()
-      .required()
       .min(8)
       .max(20),
     isGold: Joi.boolean(),

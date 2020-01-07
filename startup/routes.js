@@ -1,6 +1,7 @@
 const express = require("express");
 const genres = require("../routes/genres");
 const movies = require("../routes/movies");
+const rentals = require("../routes/rentals");
 const customers = require("../routes/customers");
 const mongooseTutorial = require("../routes/mongooseTutorial");
 const error = require("../Middleware/error");
@@ -33,6 +34,7 @@ module.exports = function(app) {
   app.use("/mongod", mongooseTutorial);
   app.use("/customers", customers);
   app.use("/movies", movies);
+  app.use("/rentals", rentals);
   app.use(BasicAuth); //uncomment to use basic Auth include authorization header while passing req
 
   app.use(error);
