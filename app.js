@@ -14,9 +14,14 @@ mongoose
   .connect("mongodb://localhost/vidly2", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: true
+    poolSize: 5, //default 5 connections allowed, generally use poolSize = 10
+    useCreateIndex: true,
+    useFindAndModify: false
   })
-  .then(() => console.log("Connected to MOngoDB"))
+  .then(data => {
+    console.log("Connected to MOngoDB");
+    const db = data;
+  })
   .catch(err => {
     "could not connect to mongodb", err;
   });

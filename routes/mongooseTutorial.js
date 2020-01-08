@@ -1,4 +1,6 @@
 const express = require("express");
+const _ = require("lodash");
+
 const router = express.Router();
 const mongoose = require("mongoose");
 
@@ -106,18 +108,26 @@ router.put("/:_id", async ({ body, params }, res) => {
   const course = await Course.findById(params._id);
   if (!course) return res.send("course not found");
   try {
-    Object.keys(body).forEach(item => {
-      if (typeof body[item] !== "object") course[item] = body[item]; //to avoid updating comments
-      course.modifiedDate = Date.now();
-    });
     // course.set({
     //   name: req.body.name,
     //   Author: req.body.Author,
     //   // price: body.price,
     //   modifiedDate: Date.now()
     // });
-    const result = await course.save();
-    res.send(result);
+
+    //issue:if comments are passed above code fails
+
+    //my solution
+    // Object.keys(body).forEach(item => {
+    //   if (typeof body[item] !== "object") course[item] = body[item]; //to avoid updating comments
+    //   course.modifiedDate = Date.now();
+    // });
+
+    //lodash
+    let course = new Course(_.pick(body, ["name", "Author", "price"]));
+    course.modifiedDate = Date.now();
+    await course.save();
+    res.send(_.pick(course, ["name", "Author", "price"])); //this does not send id, and we can select which property to send
   } catch (err) {
     for (field in err.errors) res.send(err.errors[field]);
   }

@@ -11,7 +11,8 @@ const Movie = mongoose.model(
       required: true,
       minlength: 1,
       maxlength: 250,
-      trim: true
+      trim: true,
+      unique: true
     },
     genre: { type: genreSchema, required: true },
     numberInStock: { type: Number, min: 0 },

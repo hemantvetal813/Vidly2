@@ -24,8 +24,10 @@ router
     try {
       const { error } = validateMovie(req);
       if (error) return res.send(error.details[0].message);
-      const movie = await Movie.find({ title: req.body.title });
-      if (movie.length !== 0) return res.send("Movie exist in database");
+
+      //just set unique:true in mongoose schema
+      // const movie = await Movie.find({ title: req.body.title });
+      // if (movie.length !== 0) return res.send("Movie exist in database");
 
       //cast object id issue: whenever we refer to other document with invalid _id i.e. inavlid genre id in movie document it passes this error
       //my solution for cast object id issue

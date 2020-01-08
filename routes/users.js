@@ -1,4 +1,5 @@
 const express = require("express");
+const _ = require("lodash");
 const router = express.Router();
 const { validateUser, User } = require("../models/user");
 const mongoose = require("mongoose");
@@ -14,13 +15,16 @@ router.route("/").get(async (req, res) => {
 });
 
 router.post("/signup", async (req, res) => {
-  const user = await User.find({ name: req.body.name });
-  if (user.length !== 0) return res.send("Username not available");
+  const { error } = validateUser(req);
+  if (error) return res.send(error.details[0].message);
+
+  const user = await User.findOne({ email: req.body.email });
+  if (user) return res.send("Email already registered");
+
   try {
-    const newUser = new User(req.body);
+    const newUser = new User(_.pick(req.body, ["name", "password", "email"]));
     result = await newUser.save();
-    res.send(result);
-    res.redirect("/login");
+    res.send(_.pick(result, ["name", "password", "email", "_id"]));
   } catch (error) {
     res.send(error.message);
   }
