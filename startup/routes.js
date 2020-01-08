@@ -35,7 +35,7 @@ module.exports = function(app) {
   app.use("/customers", customers);
   app.use("/movies", movies);
   app.use("/rentals", rentals);
-  app.use(BasicAuth); //uncomment to use basic Auth include authorization header while passing req
+  // app.use(BasicAuth); //uncomment to use basic Auth include authorization header while passing req
 
   app.use(error);
 };

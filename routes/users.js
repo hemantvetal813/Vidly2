@@ -1,14 +1,16 @@
 const express = require("express");
 const _ = require("lodash");
+const jwt = require("jsonwebtoken");
+const config = require("config");
+
 const router = express.Router();
 const { validateUser, User } = require("../models/user");
-const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 router.route("/").get(async (req, res) => {
   try {
     const users = await User.find();
     res.send(users);
-    console.log(users);
   } catch (error) {
     res.send(error.message);
   }
@@ -23,6 +25,8 @@ router.post("/signup", async (req, res) => {
 
   try {
     const newUser = new User(_.pick(req.body, ["name", "password", "email"]));
+    const salt = await bcrypt.genSalt(10);
+    newUser.password = await bcrypt.hash(newUser.password, salt);
     result = await newUser.save();
     res.send(_.pick(result, ["name", "password", "email", "_id"]));
   } catch (error) {
@@ -43,7 +47,6 @@ router.post("/login", async (req, res, next) => {
     let username = auth[0];
     let password = auth[1];
     const userObject = await User.find({ name: username });
-    console.log(userObject);
     if (username == userObject[0].name && password == userObject[0].password) {
       // res.cookie("user", "admin", { signed: true });
       req.session.username = "authenticated";
@@ -65,6 +68,20 @@ router.post("/login", async (req, res, next) => {
       res.send("you are not authenticated users");
     }
   }
+});
+router.post("/loginMosh", async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) return res.send("Invalid User");
+
+  //hashing password
+  const validPassword = await bcrypt.compare(req.body.password, user.password);
+  if (!validPassword) return res.send("Invalid Password");
+
+  //the things you want to send to client
+  const payload = { name: user.name, email: user.email };
+  const token = jwt.sign(payload, config.get("jwt_privatekey"));
+
+  res.send(token);
 });
 router.get("/logout", async (req, res) => {
   if (req.session) {
