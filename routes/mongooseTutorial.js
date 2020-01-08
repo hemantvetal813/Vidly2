@@ -1,5 +1,6 @@
 const express = require("express");
 const _ = require("lodash");
+const JwtAuth = require("../Middleware/Authentication/Jwt_Auth");
 
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -46,6 +47,7 @@ const courseSchema = new mongoose.Schema({
 
 const Course = mongoose.model("Course", courseSchema);
 
+//the second argument to get,put ,post,delete is we can pass middleware
 router.post("/", async (req, res) => {
   const course = new Course(req.body);
   try {
@@ -55,7 +57,7 @@ router.post("/", async (req, res) => {
     res.send(err.message);
   }
 });
-router.get("/", async (req, res) => {
+router.get("/", JwtAuth, async (req, res) => {
   try {
     const course = await Course.find().sort({ name: 1 });
     res.send(course);

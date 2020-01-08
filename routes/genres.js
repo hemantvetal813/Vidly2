@@ -1,5 +1,7 @@
 const express = require("express");
 const { validateGenre, Genre } = require("../models/genre");
+const JwtAuth = require("../Middleware/Authentication/Jwt_Auth");
+
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -16,7 +18,7 @@ router.get("/:_id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", JwtAuth, async (req, res) => {
   const { error } = validateGenre(req);
   if (error) return res.send(error.details[0].message);
   try {

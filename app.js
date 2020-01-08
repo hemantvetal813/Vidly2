@@ -41,9 +41,11 @@ var app = express();
 //   running your file with the last value of PORT.
 //if it still not working
 // then save env variable manually in settings and restart the pc
+
+//default.json is template
 if (!config.get("jwtprivatekey")) {
   console.log("jwtprivatekey not set, in cmd: set vidly_password=something");
-  process.exit(1);
+  process.exit(1); //1 for exit
 }
 
 //security  module

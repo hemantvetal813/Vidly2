@@ -1,4 +1,6 @@
 const express = require("express");
+const _ = require("lodash");
+
 const router = express.Router();
 const { validateCustomer, Customer } = require("../models/customer");
 
@@ -22,18 +24,13 @@ router
       res.send(error.message);
     }
   });
-router.put("/:_id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   const { error } = validateCustomer(req);
   if (error) return res.send(error.details[0].message);
   try {
     const customer = await Customer.findByIdAndUpdate(
       req.params._id,
-      {
-        name: req.body.name,
-        phone: req.body.phone,
-        isGold: req.body.isGold,
-        author: req.body.authorId
-      },
+      _.pick(req.body, ["name", "phone", "isGold", "author"]),
       { new: true }
     );
     res.send(customer);
