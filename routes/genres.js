@@ -1,24 +1,31 @@
 const express = require("express");
 const { validateGenre, Genre } = require("../models/genre");
 const JwtAuth = require("../Middleware/Authentication/Jwt_Auth");
+const admin = require("../Middleware/Authentication/admin");
+const asyncMiddleware = require("../Middleware/asyncMiddleware");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  const genres = await Genre.find().sort();
-  res.send(genres);
-});
+router.get(
+  "/",
+  JwtAuth,
+  asyncMiddleware(async (req, res) => {
+    // throw new Error("afkjdfhkjdf");
+    const genres = await Genre.find().sort();
+    res.send(genres);
+  })
+);
 
-router.get("/:_id", async (req, res) => {
-  try {
+router.get(
+  "/:_id",
+  [JwtAuth],
+  asyncMiddleware(async (req, res) => {
     const genre = await Genre.find({ _id: req.params._id });
     res.send(genre);
-  } catch (error) {
-    res.send(error.message);
-  }
-});
+  })
+);
 
-router.post("/", JwtAuth, async (req, res) => {
+router.post("/", [JwtAuth, admin], async (req, res) => {
   const { error } = validateGenre(req);
   if (error) return res.send(error.details[0].message);
   try {
@@ -30,7 +37,7 @@ router.post("/", JwtAuth, async (req, res) => {
   }
 });
 
-router.put("/:_id", async (req, res) => {
+router.put("/:_id", [JwtAuth, admin], async (req, res) => {
   const { error } = validateGenre(req);
   if (error) return res.send(error.details[0].message);
   try {
@@ -47,7 +54,7 @@ router.put("/:_id", async (req, res) => {
   }
 });
 
-router.delete("/:_id", async (req, res) => {
+router.delete("/:_id", [JwtAuth, admin], async (req, res) => {
   try {
     const genre = await Genre.findByIdAndDelete(req.params._id);
     res.send(genre);

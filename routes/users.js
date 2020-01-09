@@ -3,7 +3,6 @@ const _ = require("lodash");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const JwtAuth = require("../Middleware/Authentication/Jwt_Auth");
-
 const router = express.Router();
 const { validateUser, User } = require("../models/user");
 const bcrypt = require("bcryptjs");
@@ -36,7 +35,7 @@ router.post("/signup", async (req, res) => {
     result = await newUser.save();
 
     //jwt token
-    const payload = { _id: newUser._id };
+    const payload = { _id: newUser._id, isAdmin: newUser.isAdmin };
     const token = genrateJwtToken(payload);
     res.header("x-auth-token", token);
 
@@ -90,7 +89,7 @@ router.post("/loginMosh", async (req, res) => {
   if (!validPassword) return res.send("Invalid Password");
 
   //the things you want to send to client
-  const payload = { _id: user._id };
+  const payload = { _id: user._id, isAdmin: user.isAdmin };
   const token = genrateJwtToken(payload);
 
   res.send(token);
@@ -103,6 +102,9 @@ router.get("/logout", async (req, res) => {
   } else {
     res.send("you are not logged in");
   }
+  //logoutMosh is not implemented as we do not store token in server so,
+  // whenever the client is not providing the token it automatically is logged out,wow mosh
+  //though if you want to save on server -->hash it
 });
 
 function genrateJwtToken(payload) {
