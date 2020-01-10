@@ -8,7 +8,7 @@ require("express-async-errors");
 module.exports = function() {
   winston.add(
     new winston.transports.File({ filename: "logFile.log" }),
-    new winston.transports.Console({ colorize: true, prettyprint: true })
+    new winston.transports.Console({ colorize: true, prettyprint: true }) 
   ); //to store in user pc
   winston.add(
     new winston.transports.MongoDB({ db: "mongodb://localhost/vidly2" })

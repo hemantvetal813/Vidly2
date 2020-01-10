@@ -25,7 +25,9 @@ app.use(express.static(path.join(__dirname, "public")));
 //put logging before to catch error first
 require("./startup/logging")();
 require("./startup/routes")(app);
-require("./startup/db")();
+//choose database
+// require("./startup/mongodb")();
+require("./startup/mysqlDB")();
 require("./startup/config")();
 
 module.exports = app;

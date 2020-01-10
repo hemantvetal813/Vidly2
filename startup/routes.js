@@ -1,5 +1,7 @@
 const express = require("express");
 const genres = require("../routes/genres");
+const genres_sql = require("../routes/genres_sql");
+const sql_db = require("../routes/sql_db");
 const movies = require("../routes/movies");
 const rentals = require("../routes/rentals");
 const customers = require("../routes/customers");
@@ -27,10 +29,12 @@ module.exports = function(app) {
   app.get("/", (req, res) => {
     res.send("Welcome Page");
   });
+  app.use("/sql_db", sql_db);
   app.use("/users", users);
   app.use("/authors", authors);
 
   app.use("/genres", genres);
+  app.use("/genres_sql", genres_sql);
   app.use("/mongod", mongooseTutorial);
   app.use("/customers", customers);
   app.use("/movies", movies);
