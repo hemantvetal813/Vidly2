@@ -1,5 +1,5 @@
 const express = require("express");
-const mysqlDb = require("../startup/mysqlDB")(); //imp its a function
+const mysqlDb = require("../startup/mysqlDB"); //imp its a function
 
 const router = express.Router();
 
